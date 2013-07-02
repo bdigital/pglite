@@ -16,16 +16,19 @@ class Pglite
   #
   # Execute a query (please no concurrency here)
   #
-  def execute(query)
-    filename = File.open('/tmp/pglite.sql', 'wb') { |file| file.write(query) }
-    execute_file(filename)
+  def execute(query, rowify = false)
+    filename = '/tmp/pglite.sql'
+    File.open(filename, 'wb') { |file| file.write(query) }
+    execute_file(filename, rowify)
   end
   
   #
   # Executes an sql file for the connection
   #
-  def execute_file(filename)
-    `psql #{@opts} < "#{filename}"`.strip
+  def execute_file(filename, rowify = false)
+    results = `psql #{@opts} < "#{filename}"`.strip
+    return results.split("\n").map {|i| i.strip} if rowify
+    return results
   end
   
 end
