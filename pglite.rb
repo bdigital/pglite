@@ -13,8 +13,19 @@ class Pglite
     @opts = "-h #{conf['host']} -p #{conf['port']} -U #{conf['username']} -d #{conf['database']} -t"
   end
   
+  #
+  # Execute a query (please no concurrency here)
+  #
   def execute(query)
-    `psql #{@opts} -c "#{query}"`.strip
+    filename = File.open('/tmp/pglite.sql', 'wb') { |file| file.write(query) }
+    execute_file(filename)
+  end
+  
+  #
+  # Executes an sql file for the connection
+  #
+  def execute_file(filename)
+    `psql #{@opts} < "#{filename}"`.strip
   end
   
 end
